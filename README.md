@@ -10,6 +10,7 @@
 
 - Configurable control property
 - Structured `defaultProxyFunction`
+- README tests
 
 ---
 

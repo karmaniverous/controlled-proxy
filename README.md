@@ -9,7 +9,7 @@
 ## TODO
 
 - Configurable control property
-- Structured `defaultProxyFunction`
+- Structured `defaultHandler`
 - README tests
 
 ---

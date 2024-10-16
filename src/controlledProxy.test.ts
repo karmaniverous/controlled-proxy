@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { control, controlledProxy } from './controlledProxy';
 
-const sym = Symbol('symProp');
+const sym = Symbol('sym');
 
 interface TargetType extends Record<string | number | symbol, unknown> {
   foo: (value: string) => string;
@@ -55,7 +55,7 @@ describe('controlledProxy', function () {
   it('should apply default handler', function () {
     const proxy = controlledProxy({
       controls: { foo: true, bar: false },
-      defaultProxyFunction: () => 'default',
+      defaultHandler: () => 'default',
       target,
     });
 
@@ -67,7 +67,7 @@ describe('controlledProxy', function () {
   it('should catch invalid control', function () {
     controlledProxy({
       controls: { foo: true, bar: false, invalid: true },
-      defaultProxyFunction: () => 'default',
+      defaultHandler: () => 'default',
       // @ts-expect-error Property 'invalid' is missing in type
       target,
     });
@@ -117,10 +117,10 @@ describe('controlledProxy', function () {
     expect(target.answer).to.equal(100);
   });
 
-  it('should handle defaultProxyFunction for properties', function () {
+  it('should handle defaultHandler for properties', function () {
     const proxy = controlledProxy({
       controls: { answer: false },
-      defaultProxyFunction: () => 'default value',
+      defaultHandler: () => 'default value',
       target,
     });
 
@@ -154,7 +154,7 @@ describe('controlledProxy', function () {
   it('should apply default handler for disabled methods', function () {
     const proxy = controlledProxy({
       controls: { increment: false },
-      defaultProxyFunction: () => 'default increment',
+      defaultHandler: () => 'default increment',
       target,
     });
 
@@ -217,16 +217,16 @@ describe('controlledProxy', function () {
     expect(proxy[control]).to.deep.equal({ foo: true, bar: false });
   });
 
-  it('should prevent adding new properties to controls', function () {
+  it('should allow adding new properties to controls', function () {
     const proxy = controlledProxy({
       controls: { foo: true },
       target,
     });
 
-    expect(() => {
-      // @ts-expect-error Property 'bar' does not exist on type 'Record<"foo", boolean>'.
-      proxy.controls.bar = false;
-    }).to.throw(TypeError);
+    // @ts-expect-error Property 'bar' does not exist on type 'Record<"foo", boolean>'.
+    proxy[control].bar = false;
+
+    expect(proxy.bar('test')).to.be.undefined;
   });
 
   it('should allow updating control values', function () {
@@ -304,10 +304,10 @@ describe('controlledProxy', function () {
     expect(proxy.concat('Hello, ', 'World!')).to.equal('Hello, World!');
   });
 
-  it('should pass arguments to defaultProxyFunction when method is disabled', function () {
+  it('should pass arguments to defaultHandler when method is disabled', function () {
     const proxy = controlledProxy({
       controls: { foo: false },
-      defaultProxyFunction: (...args: unknown[]) =>
+      defaultHandler: (target, prop, receiver, ...args: unknown[]) =>
         `default: ${args.join(', ')}`,
       target,
     });

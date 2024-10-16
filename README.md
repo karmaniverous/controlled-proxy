@@ -2,7 +2,7 @@
 
 ![controlled-proxy](/assets/controlled-proxy.png)
 
-`controlledProxy` allows the behavior of any object to be modified & controlled non-destructively at runtime.
+**_`controlledProxy` allows the behavior of any object to be modified & controlled non-destructively at runtime._**
 
 <!-- TYPEDOC_EXCLUDE -->
 

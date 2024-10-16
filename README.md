@@ -2,7 +2,7 @@
 
 ![controlled-proxy](/assets/controlled-proxy.png)
 
-`controlledProxy` creates a proxy of any object that behaves exactly like the original, but adds a `control` property that turns the proxy's other properties on & off at runtime.
+`controlledProxy` creates a proxy of any object that behaves exactly like the original, but adds a `[control]` property that turns other members on & off at runtime.
 
 <!-- TYPEDOC_EXCLUDE -->
 

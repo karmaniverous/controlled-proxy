@@ -1,0 +1,80 @@
+@startuml controlled-proxy
+
+skinparam DefaultTextAlignment left
+
+allowmixing
+
+left to right direction
+
+circle "[control]" as controlInterface #LightBlue
+note top of controlInterface
+  {
+    foo: true,
+    bar: true,
+    baz: false
+  }
+end note
+
+actor " " as dev
+dev --> controlInterface: interacts\nat runtime
+
+circle "foo" as proxyFoo #LightGreen
+note left of proxyFoo
+  **controlled property ON**
+  returns target.foo
+end note
+
+circle "bar()" as proxyBar #LightGreen
+note left of proxyBar 
+  **controlled property ON**
+  returns target.bar
+end note
+
+circle "baz" as proxyBaz #LightPink
+note left of proxyBaz 
+  **controlled property OFF**
+  returns undefined
+end note
+
+circle "qux" as proxyQux #LightGreen
+note left of proxyQux 
+  **uncontrolled property**
+  returns target.qux
+end note
+
+object "proxy" as proxy #LightBlue
+
+note top of proxy
+  exposes all 
+  target members 
+end note
+
+controlInterface -- proxy 
+proxyFoo -- proxy
+proxyBar -- proxy
+proxyBaz -- proxy
+proxyQux -- proxy
+
+controlInterface -[hidden] proxyFoo
+proxyFoo -[hidden] proxyBar
+proxyBar -[hidden] proxyBaz
+proxyBaz -[hidden] proxyQux
+
+object "target" as target
+circle "foo" as targetFoo
+circle "bar()" as targetBar
+circle "baz" as targetBaz
+circle "qux" as targetQux
+
+target -- targetFoo
+target -- targetBar
+target -- targetBaz
+target -- targetQux
+
+targetFoo -[hidden] targetBar
+targetBar -[hidden] targetBaz
+targetBaz -[hidden] targetQux
+
+proxy <|-- target
+
+@enduml

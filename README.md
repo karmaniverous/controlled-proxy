@@ -1,4 +1,8 @@
+![controlled-proxy](/assets/controlled-proxy.png)
+
 # controlled-proxy
+
+`controlledProxy` creates a proxy of any object that behaves exactly like the original, except that it includes a special control property that can be used to turn the proxy's other properties on & off.
 
 <!-- TYPEDOC_EXCLUDE -->
 

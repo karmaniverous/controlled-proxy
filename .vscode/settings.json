@@ -17,6 +17,11 @@
     "--no-warnings=ExperimentalWarning",
     "--experimental-specifier-resolution=node"
   ],
+  "plantuml.render": "Local",
+  "plantuml.exportFormat": "",
+  "plantuml.diagramsRoot": "assets",
+  "plantuml.exportIncludeFolderHeirarchy": false,
+  "plantuml.exportOutDir": "assets",
+  "plantuml.exportSubFolder": false,
   "testExplorer.mergeSuites": true
 }
-

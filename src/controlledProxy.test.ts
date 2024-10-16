@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { controlledProxy } from './controlledProxy';
+import { control, controlledProxy } from './controlledProxy';
 
 const sym = Symbol('symProp');
 
@@ -214,7 +214,7 @@ describe('controlledProxy', function () {
       target,
     });
 
-    expect(proxy.controls).to.deep.equal({ foo: true, bar: false });
+    expect(proxy[control]).to.deep.equal({ foo: true, bar: false });
   });
 
   it('should prevent adding new properties to controls', function () {
@@ -237,7 +237,7 @@ describe('controlledProxy', function () {
 
     expect(proxy.foo('test')).to.equal('foo: test');
 
-    proxy.controls.foo = false;
+    proxy[control].foo = false;
     expect(proxy.foo('test')).to.be.undefined;
   });
 
@@ -251,7 +251,7 @@ describe('controlledProxy', function () {
 
     expect(proxy[sym]).to.be.undefined;
 
-    proxy.controls[sym] = true;
+    proxy[control][sym] = true;
     expect(proxy[sym]).to.equal('symbol value');
   });
 

@@ -15,6 +15,8 @@ export interface ControlledProxyOptions<
   defaultProxyFunction?: ControlledMethod;
 }
 
+export const control = Symbol('control');
+
 export function controlledProxy<
   Properties extends PropertyKey,
   Target extends ControlledPartial<Properties>,
@@ -28,7 +30,7 @@ export function controlledProxy<
   return new Proxy(target, {
     get(targetObj, prop, receiver): unknown {
       // if property is control property, return it
-      if (prop === 'controls') return sealedControls;
+      if (prop === control) return sealedControls;
       const value = Reflect.get(targetObj, prop, receiver);
 
       return prop in sealedControls // controlled?
@@ -47,5 +49,5 @@ export function controlledProxy<
         ? Reflect.set(targetObj, prop, value, receiver) // !controlled | enabled
         : false;
     },
-  }) as Target & { controls: Record<Properties, boolean> };
+  }) as Target & { [control]: Record<Properties, boolean> };
 }

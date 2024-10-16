@@ -6,16 +6,17 @@ allowmixing
 
 left to right direction
 
+actor " " as dev
+
 circle "[control]" as controlInterface #LightBlue
-note top of controlInterface
+note right of controlInterface
   {
     foo: true,
-    bar: true,
-    baz: false
+    bar: false,
+    baz: true
+    qux: false
   }
 end note
-
-actor " " as dev
 dev --> controlInterface: interacts\nat runtime
 
 circle "foo" as proxyFoo #LightGreen
@@ -24,56 +25,51 @@ note left of proxyFoo
   returns target.foo
 end note
 
-circle "bar()" as proxyBar #LightGreen
+circle "bar" as proxyBar #LightPink
 note left of proxyBar 
-  **controlled property ON**
-  returns target.bar
-end note
-
-circle "baz" as proxyBaz #LightPink
-note left of proxyBaz 
   **controlled property OFF**
   returns undefined
 end note
 
-circle "qux" as proxyQux #LightGreen
+circle "baz(...args)" as proxyBaz #LightGreen
+note left of proxyBaz 
+  **controlled method ON**
+  returns target.baz(...args)
+end note
+
+circle "qux(...args)" as proxyQux #LightPink
 note left of proxyQux 
-  **uncontrolled property**
-  returns target.qux
+  **controlled method OFF**
+  returns undefined
 end note
 
-object "proxy" as proxy #LightBlue
-
-note top of proxy
-  exposes all 
-  target members 
+circle "thud" as proxyThud #LightGreen
+note left of proxyThud 
+  **uncontrolled member**
+  returns target.thud
 end note
+
+object "controlledProxy(target)" as proxy #LightBlue
 
 controlInterface -- proxy 
 proxyFoo -- proxy
 proxyBar -- proxy
 proxyBaz -- proxy
 proxyQux -- proxy
-
-controlInterface -[hidden] proxyFoo
-proxyFoo -[hidden] proxyBar
-proxyBar -[hidden] proxyBaz
-proxyBaz -[hidden] proxyQux
+proxyThud -- proxy
 
 object "target" as target
 circle "foo" as targetFoo
-circle "bar()" as targetBar
-circle "baz" as targetBaz
-circle "qux" as targetQux
+circle "bar" as targetBar
+circle "baz(...args)" as targetBaz
+circle "qux(...args)" as targetQux
+circle "thud" as targetThud
 
 target -- targetFoo
 target -- targetBar
 target -- targetBaz
 target -- targetQux
-
-targetFoo -[hidden] targetBar
-targetBar -[hidden] targetBaz
-targetBaz -[hidden] targetQux
+target -- targetThud
 
 proxy <|-- target
 

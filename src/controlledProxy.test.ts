@@ -1,6 +1,10 @@
 import { expect } from 'chai';
 
-import { control, controlledProxy } from './controlledProxy';
+import {
+  controlledProxy,
+  controlProp,
+  disabledMemberHandlerProp,
+} from './controlledProxy';
 
 const sym = Symbol('sym');
 
@@ -34,7 +38,7 @@ describe('controlledProxy', function () {
   });
 
   it('should pass through uncontrolled members', function () {
-    const proxy = controlledProxy({ controls: {}, target });
+    const proxy = controlledProxy({ defaultControls: {}, target });
 
     expect(proxy.foo('hello')).to.equal('foo: hello');
     expect(proxy.bar('world')).to.equal('bar: world');
@@ -43,7 +47,7 @@ describe('controlledProxy', function () {
 
   it('should control controlled members', function () {
     const proxy = controlledProxy({
-      controls: { foo: true, bar: false },
+      defaultControls: { foo: true, bar: false },
       target,
     });
 
@@ -54,8 +58,8 @@ describe('controlledProxy', function () {
 
   it('should apply default handler', function () {
     const proxy = controlledProxy({
-      controls: { foo: true, bar: false },
-      defaultHandler: () => 'default',
+      defaultControls: { foo: true, bar: false },
+      defaultDisabledMemberHandler: () => 'default',
       target,
     });
 
@@ -66,8 +70,8 @@ describe('controlledProxy', function () {
 
   it('should catch invalid control', function () {
     controlledProxy({
-      controls: { foo: true, bar: false, invalid: true },
-      defaultHandler: () => 'default',
+      defaultControls: { foo: true, bar: false, invalid: true },
+      defaultDisabledMemberHandler: () => 'default',
       // @ts-expect-error Property 'invalid' is missing in type
       target,
     });
@@ -75,7 +79,7 @@ describe('controlledProxy', function () {
 
   it('should control non-function properties', function () {
     const proxy = controlledProxy({
-      controls: { answer: false },
+      defaultControls: { answer: false },
       target,
     });
 
@@ -85,7 +89,7 @@ describe('controlledProxy', function () {
 
   it('should allow access to enabled non-function properties', function () {
     const proxy = controlledProxy({
-      controls: { answer: true },
+      defaultControls: { answer: true },
       target,
     });
 
@@ -94,7 +98,7 @@ describe('controlledProxy', function () {
 
   it('should prevent assignment to disabled properties', function () {
     const proxy = controlledProxy({
-      controls: { answer: false },
+      defaultControls: { answer: false },
       target,
     });
 
@@ -108,7 +112,7 @@ describe('controlledProxy', function () {
 
   it('should allow assignment to enabled properties', function () {
     const proxy = controlledProxy({
-      controls: { answer: true },
+      defaultControls: { answer: true },
       target,
     });
 
@@ -119,8 +123,8 @@ describe('controlledProxy', function () {
 
   it('should handle defaultHandler for properties', function () {
     const proxy = controlledProxy({
-      controls: { answer: false },
-      defaultHandler: () => 'default value',
+      defaultControls: { answer: false },
+      defaultDisabledMemberHandler: () => 'default value',
       target,
     });
 
@@ -129,7 +133,7 @@ describe('controlledProxy', function () {
 
   it('should maintain correct this context for methods', function () {
     const proxy = controlledProxy({
-      controls: { increment: true },
+      defaultControls: { increment: true },
       target,
     });
 
@@ -141,7 +145,7 @@ describe('controlledProxy', function () {
 
   it('should not execute disabled methods', function () {
     const proxy = controlledProxy({
-      controls: { increment: false },
+      defaultControls: { increment: false },
       target,
     });
 
@@ -153,8 +157,8 @@ describe('controlledProxy', function () {
 
   it('should apply default handler for disabled methods', function () {
     const proxy = controlledProxy({
-      controls: { increment: false },
-      defaultHandler: () => 'default increment',
+      defaultControls: { increment: false },
+      defaultDisabledMemberHandler: () => 'default increment',
       target,
     });
 
@@ -164,9 +168,9 @@ describe('controlledProxy', function () {
     expect(target.answer).to.equal(42);
   });
 
-  it('should handle empty controls (no properties controlled)', function () {
+  it('should handle empty defaultControls (no properties controlled)', function () {
     const proxy = controlledProxy({
-      controls: {},
+      defaultControls: {},
       target,
     });
 
@@ -177,7 +181,7 @@ describe('controlledProxy', function () {
   });
 
   it('should handle all properties controlled and disabled', function () {
-    const controls = {
+    const defaultControls = {
       foo: false,
       bar: false,
       answer: false,
@@ -185,7 +189,7 @@ describe('controlledProxy', function () {
       increment: false,
     };
     const proxy = controlledProxy({
-      controls,
+      defaultControls,
       target,
     });
 
@@ -198,7 +202,7 @@ describe('controlledProxy', function () {
 
   it('should handle property deletion through proxy', function () {
     const proxy = controlledProxy({
-      controls: { answer: true },
+      defaultControls: { answer: true },
       target,
     });
 
@@ -208,36 +212,36 @@ describe('controlledProxy', function () {
     expect(target.answer).to.be.undefined;
   });
 
-  it('should expose controls property', function () {
+  it('should expose defaultControls property', function () {
     const proxy = controlledProxy({
-      controls: { foo: true, bar: false },
+      defaultControls: { foo: true, bar: false },
       target,
     });
 
-    expect(proxy[control]).to.deep.equal({ foo: true, bar: false });
+    expect(proxy[controlProp]).to.deep.equal({ foo: true, bar: false });
   });
 
-  it('should allow adding new properties to controls', function () {
+  it('should allow adding new properties to defaultControls', function () {
     const proxy = controlledProxy({
-      controls: { foo: true },
+      defaultControls: { foo: true },
       target,
     });
 
     // @ts-expect-error Property 'bar' does not exist on type 'Record<"foo", boolean>'.
-    proxy[control].bar = false;
+    proxy[controlProp].bar = false;
 
     expect(proxy.bar('test')).to.be.undefined;
   });
 
   it('should allow updating control values', function () {
     const proxy = controlledProxy({
-      controls: { foo: true },
+      defaultControls: { foo: true },
       target,
     });
 
     expect(proxy.foo('test')).to.equal('foo: test');
 
-    proxy[control].foo = false;
+    proxy[controlProp].foo = false;
     expect(proxy.foo('test')).to.be.undefined;
   });
 
@@ -245,19 +249,19 @@ describe('controlledProxy', function () {
     target[sym] = 'symbol value';
 
     const proxy = controlledProxy({
-      controls: { [sym]: false },
+      defaultControls: { [sym]: false },
       target,
     });
 
     expect(proxy[sym]).to.be.undefined;
 
-    proxy[control][sym] = true;
+    proxy[controlProp][sym] = true;
     expect(proxy[sym]).to.equal('symbol value');
   });
 
   it('should allow setting uncontrolled properties', function () {
     const proxy = controlledProxy({
-      controls: {},
+      defaultControls: {},
       target,
     });
 
@@ -268,7 +272,7 @@ describe('controlledProxy', function () {
 
   it('should prevent setting controlled properties when disabled', function () {
     const proxy = controlledProxy({
-      controls: { status: false },
+      defaultControls: { status: false },
       target,
     });
 
@@ -282,7 +286,7 @@ describe('controlledProxy', function () {
 
   it('should allow setting controlled properties when enabled', function () {
     const proxy = controlledProxy({
-      controls: { status: true },
+      defaultControls: { status: true },
       target,
     });
 
@@ -295,7 +299,7 @@ describe('controlledProxy', function () {
     target.concat = (a: string, b: string) => a + b;
 
     const proxy = controlledProxy({
-      controls: { concat: true },
+      defaultControls: { concat: true },
       target: target as typeof target & {
         concat: (a: string, b: string) => string;
       },
@@ -306,12 +310,39 @@ describe('controlledProxy', function () {
 
   it('should pass arguments to defaultHandler when method is disabled', function () {
     const proxy = controlledProxy({
-      controls: { foo: false },
-      defaultHandler: (target, prop, receiver, ...args: unknown[]) =>
-        `default: ${args.join(', ')}`,
+      defaultControls: { foo: false },
+      defaultDisabledMemberHandler: (
+        target,
+        prop,
+        receiver,
+        ...args: unknown[]
+      ) => `default: ${args.join(', ')}`,
       target,
     });
 
     expect(proxy.foo('test')).to.equal('default: test');
+  });
+
+  it('should allow update to disabled member handler', function () {
+    const proxy = controlledProxy({
+      defaultControls: { foo: false },
+      target,
+    });
+
+    proxy[disabledMemberHandlerProp] = () => 'new handler';
+
+    expect(proxy.foo('test')).to.equal('new handler');
+  });
+
+  it('should fail when updating disabled member handler to non-function', function () {
+    const proxy = controlledProxy({
+      defaultControls: { foo: false },
+      target,
+    });
+
+    expect(() => {
+      // @ts-expect-error Type 'number' is not assignable to type 'DisabledMemberHandler<"foo", TargetType>'.
+      proxy[disabledMemberHandlerProp] = 42;
+    }).to.throw('The disabled member handler must be a function.');
   });
 });

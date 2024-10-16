@@ -1,39 +1,146 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ControlledMethod = (...args: any[]) => any;
-
+/**
+ * Template type representing the controlled properties of a proxy object.
+ *
+ * @typeParam Properties - The property keys of the controlled properties.
+ */
 export type ControlledPartial<Properties extends PropertyKey> = Record<
   Properties,
   unknown
 >;
 
-export type ControlledProxyHandler<
+/**
+ * Handler function for a disabled controlled proxy object member.
+ *
+ * @typeParam Properties - Union representing property keys of the controlled properties.
+ * @typeParam Target - The target object type. Must have all keys in `Properties`.
+ *
+ * @param target - The target object.
+ * @param p - The property key.
+ * @param receiver - The proxy object.
+ * @param args - The arguments passed to the function.
+ *
+ * @returns The result of the handler function.
+ *
+ * @remarks
+ * The handler function is called when a disabled controlled member of `target` is accessed (i.e. an internal `get` operation).
+ *
+ * Type parameters will be inferred from the function definition. It should not be necessary to provide them explicitly.
+ *
+ * Params `target`, `p`, and `receiver` provide runtime context and are the same as the {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/Proxy/get | `get` method of a `ProxyHandler`}.
+ *
+ * When not provided, this function defaults to `() => undefined`.
+ *
+ * If the underlying member is a function, the handler fuction will be called with appropriate `target`, `p`, and `receiver` values, along with any provided `args`.
+ *
+ * If the underlying member is not a function, the handler function will be called with appropriate `target`, `p`, and `receiver` values, and no `args` and its result returned.
+ */
+export type DisabledMemberHandler<
   Properties extends PropertyKey,
   Target extends ControlledPartial<Properties>,
 > = (target: Target, p: PropertyKey, receiver: any, ...args: any[]) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
+/**
+ * Symbol representing the control property of a controlled proxy object.
+ */
+export const controlProp = Symbol('controlProp');
+
+/**
+ * Symbol representing the disabled member handler property of a controlled proxy object.
+ */
+export const disabledMemberHandlerProp = Symbol('disabledMemberHandlerProp');
+
+/**
+ * Options for creating a controlled proxy object.
+ *
+ * @typeParam Properties - Union representing property keys of the controlled properties.
+ * @typeParam Target - The target object type. Must have all keys in `Properties`.
+ *
+ * @remarks
+ * Type parameters will be inferred from the option values. It should not be necessary to provide them explicitly.
+ */
 export interface ControlledProxyOptions<
   Properties extends PropertyKey,
   Target extends ControlledPartial<Properties>,
 > {
-  controls: Record<Properties, boolean>;
-  defaultHandler?: ControlledProxyHandler<Properties, Target>;
+  /**
+   * An object containing the default control flags for each controlled property. This object will be rendered as the {@link controlProp | `[controlProp]`} property of the proxy object.
+   */
+  defaultControls: Record<Properties, boolean>;
+
+  /**
+   * The default handler function for disabled controlled properties. Defaults to `() => undefined`. See the {@link DisabledMemberHandler | `DisabledMemberHandler`} type for more information.
+   */
+  defaultDisabledMemberHandler?: DisabledMemberHandler<Properties, Target>;
+
+  /**
+   * The target object to proxy.
+   */
   target: Target;
 }
 
-export const control = Symbol('control');
-
+/**
+ * Creates a proxy of any object that behaves exactly like the original, but adds a {@link controlProp | `[controlProp]`} property that turns other members on & off at runtime.
+ *
+ * @param options - The options for creating the controlled proxy object. See {@link ControlledProxyOptions | `ControlledProxyOptions`} for more information.
+ *
+ * @returns A controlled proxy object.
+ *
+ * @example
+ * ```ts
+ * import {
+ *   controlledProxy,
+ *   controlProp,
+ *   disabledMemberHandlerProp,
+ * } from '@karmaniverous/controlled-proxy';
+ *
+ * const controlledConsole = controlledProxy({
+ *   defaultControls: { debug: true, info: false },
+ *   target: console,
+ * });
+ *
+ * // Info messages are disabled by default.
+ * controlledConsole.debug('debug log'); // > debug log
+ * controlledConsole.info('info log');   // >
+ *
+ * // Disable debug messages & enable info messages.
+ * controlledConsole[controlProp].debug = false;
+ * controlledConsole[controlProp].info = true;
+ *
+ * // Try again.
+ * controlledConsole.debug('debug log'); // >
+ * controlledConsole.info('info log');   // > info log
+ *
+ * // Change the disabled member handler.
+ * controlledConsole[disabledMemberHandlerProp] = (target, prop) =>
+ *   target.log(`Accessed disabled member: ${prop.toString()}`);
+ *
+ * // One more time.
+ * controlledConsole.debug('debug log'); // > Accessed disabled member: debug
+ * controlledConsole.info('info log');   // > info log
+ * ```
+ */
 export const controlledProxy = <
   Properties extends PropertyKey,
   Target extends ControlledPartial<Properties>,
->({
-  controls,
-  defaultHandler,
-  target,
-}: ControlledProxyOptions<Properties, Target>) =>
-  new Proxy(target, {
+>(
+  options: ControlledProxyOptions<Properties, Target>,
+) => {
+  const {
+    defaultControls,
+    defaultDisabledMemberHandler = () => undefined,
+    target,
+  } = options;
+
+  const controls = { ...defaultControls };
+  const handlers = { disabledMemberHandler: defaultDisabledMemberHandler };
+
+  return new Proxy(target, {
     get(targetObj, prop, receiver): unknown {
-      // if property is control property, return it
-      if (prop === control) return controls;
+      // if property is managed property, return it
+      if (prop === controlProp) return controls;
+      if (prop === disabledMemberHandlerProp)
+        return handlers.disabledMemberHandler;
+
       const value = Reflect.get(targetObj, prop, receiver);
 
       return prop in controls // controlled?
@@ -42,17 +149,40 @@ export const controlledProxy = <
             ? value.bind(targetObj) // controlled & enabled & function
             : value // controlled & enabled & !function
           : typeof value === 'function' // controlled & !enabled & function?
-            ? defaultHandler // controlled & !enabled & function & defaultHandler?
-              ? (...args: unknown[]) =>
-                  defaultHandler(targetObj, prop, receiver, ...args) // eslint-disable-line @typescript-eslint/no-unsafe-return
-              : () => undefined
-            : defaultHandler?.(targetObj, prop, receiver) // controlled & !enabled & !function
+            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (...args: any[]) =>
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                handlers.disabledMemberHandler(
+                  targetObj,
+                  prop,
+                  receiver,
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                  ...args,
+                )
+            : handlers.disabledMemberHandler(targetObj, prop, receiver) // controlled & !enabled & !function
         : value; // !controlled
     },
 
     set(targetObj, prop, value, receiver): boolean {
+      // set new disbled member handler
+      if (prop === disabledMemberHandlerProp) {
+        if (typeof value !== 'function')
+          throw new TypeError(
+            'The disabled member handler must be a function.',
+          );
+        handlers.disabledMemberHandler = value as DisabledMemberHandler<
+          Properties,
+          Target
+        >;
+      }
+
+      // set target property
       return !(prop in controls) || controls[prop as Properties]
         ? Reflect.set(targetObj, prop, value, receiver) // !controlled | enabled
         : false;
     },
-  }) as Target & { [control]: Record<Properties, boolean> };
+  }) as Target & {
+    [controlProp]: Record<Properties, boolean>;
+    [disabledMemberHandlerProp]: DisabledMemberHandler<Properties, Target>;
+  };
+};

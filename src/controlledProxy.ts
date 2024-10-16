@@ -79,7 +79,7 @@ export interface ControlledProxyOptions<
 }
 
 /**
- * Creates a proxy of any object that behaves exactly like the original, but adds a {@link controlProp | `[controlProp]`} property that turns other members on & off at runtime.
+ * Allows the behavior of any object to be modified & controlled non-destructively at runtime.
  *
  * @param options - The options for creating the controlled proxy object. See {@link ControlledProxyOptions | `ControlledProxyOptions`} for more information.
  *

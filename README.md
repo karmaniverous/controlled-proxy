@@ -59,7 +59,7 @@ controlledConsoleLogger.info('info log');
 
 // Create a class that accepts a proxied logger as a constructor argument.
 class MyClass {
-  // Limit logger type to the keys requiring proxy support.
+  // Proxied logger must be compatible with console.debug & console.info.
   constructor(private logger: Pick<Console, 'debug' | 'info'>) {}
 
   // Exercise the proxied logger.

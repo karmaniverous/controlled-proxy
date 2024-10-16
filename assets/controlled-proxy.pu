@@ -8,8 +8,8 @@ left to right direction
 
 actor " " as dev
 
-circle "[control]" as controlInterface #LightBlue
-note right of controlInterface
+circle "[controlProp]]" as controlInterface #LightBlue
+note top of controlInterface
   {
     foo: true,
     bar: false,
@@ -17,7 +17,13 @@ note right of controlInterface
     qux: false
   }
 end note
-dev --> controlInterface: interacts\nat runtime
+dev --> controlInterface: runtime
+
+circle "[disabledMemberHandlerProp]]" as disabledInterface #LightBlue
+note bottom of disabledInterface
+  default: () => undefined
+end note
+dev --> disabledInterface: runtime
 
 circle "foo" as proxyFoo #LightGreen
 note left of proxyFoo
@@ -52,6 +58,7 @@ end note
 object "controlledProxy(target)" as proxy #LightBlue
 
 controlInterface -- proxy 
+disabledInterface -- proxy 
 proxyFoo -- proxy
 proxyBar -- proxy
 proxyBaz -- proxy

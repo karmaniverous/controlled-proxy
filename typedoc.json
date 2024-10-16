@@ -13,9 +13,6 @@
     "tsx",
     "typescript"
   ],
-  "navigation": {
-    "includeCategories": true
-  },
   "out": "./docs",
   "plugin": ["typedoc-plugin-mdn-links", "typedoc-plugin-replace-text"],
   "projectDocuments": ["./CHANGELOG.md"],
@@ -30,7 +27,9 @@
   },
   "searchInComments": true,
   "searchInDocuments": true,
-  "titleLink": "https://github.com/karmaniverous/controlled-proxy",
+  "sidebarLinks": {
+    "GitHub Repo": "https://github.com/karmaniverous/controlled-proxy"
+  },
   "visibilityFilters": {
     "external": false,
     "protected": false

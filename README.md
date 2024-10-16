@@ -28,6 +28,8 @@ The [`options`](https://docs.karmanivero.us/controlled-proxy/interfaces/Controll
 | `defaultDisabledMemberHandler` | [`DisabledMemberHandler`](https://docs.karmanivero.us/controlled-proxy/types/DisabledMemberHandler.html) | `() => undefined` | A function that is called when a disabled controlled property is accessed.                                                                                                                                                                                |
 | `target`                       | `object`                                                                                                 | _required_        | The object to proxy.                                                                                                                                                                                                                                      |
 
+### Example
+
 ```ts
 import { controlledProxy } from '@karmaniverous/controlled-proxy';
 
@@ -51,6 +53,8 @@ The proxy object has two special properties, keyed with symbols that can be impo
 | ----------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `[controlProp]`               | `Record<PropertyKey, boolean>`                                                                           | A map of controlled property keys to boolean values. When this value is `true` or the property is uncontrolled, the property will behave normally. When this value is false, the property will execute the disabled member handler or return `undefined`. |
 | `[disabledMemberHandlerProp]` | [`DisabledMemberHandler`](https://docs.karmanivero.us/controlled-proxy/types/DisabledMemberHandler.html) | A function that is called when a disabled controlled property is accessed. Defaults to `() => undefined`.                                                                                                                                                 |
+
+### Example
 
 ```ts
 import {
@@ -90,6 +94,8 @@ controlledConsoleLogger.info('info log');
 ## Proxy Injection
 
 Here's the real power of the library: let's inject a controlled proxy into a class!
+
+### Example
 
 ```ts
 import { controlledProxy, controlProp } from '@karmaniverous/controlled-proxy';';

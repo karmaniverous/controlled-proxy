@@ -1,6 +1,6 @@
 # controlled-proxy
 
-![controlled-proxy](/assets/controlled-proxy.png)
+![controlled-proxy](https://github.com/karmaniverous/controlled-proxy/raw/main/assets/controlled-proxy.png)
 
 **_`controlledProxy` allows the behavior of any object to be modified & controlled non-destructively at runtime._**
 

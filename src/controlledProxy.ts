@@ -65,7 +65,7 @@ export interface ControlledProxyOptions<
   /**
    * An object containing the default control flags for each controlled property. This object will be rendered as the {@link controlProp | `[controlProp]`} property of the proxy object.
    */
-  defaultControls: Record<Properties, boolean>;
+  defaultControls?: Record<Properties, boolean>;
 
   /**
    * The default handler function for disabled controlled properties. Defaults to `() => undefined`. See the {@link DisabledMemberHandler | `DisabledMemberHandler`} type for more information.
@@ -95,7 +95,7 @@ export const controlledProxy = <
   options: ControlledProxyOptions<Properties, Target>,
 ) => {
   const {
-    defaultControls,
+    defaultControls = {} as Record<Properties, boolean>,
     defaultDisabledMemberHandler = () => undefined,
     target,
   } = options;

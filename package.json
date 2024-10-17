@@ -3,7 +3,7 @@
   "bugs": {
     "url": "https://github.com/karmaniverous/controlled-proxy/issues"
   },
-  "description": "Allows the behavior of any object to be modified & controlled non-destructively at runtime.",
+  "description": "Control & modify the behavior of any object non-destructively at runtime.",
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.19.3",
     "@eslint/js": "^9.12.0",

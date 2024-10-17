@@ -4,6 +4,26 @@
 
 **_`controlledProxy` allows the behavior of any object to be modified & controlled non-destructively at runtime._**
 
+The developer can:
+
+- Alter the proxy's endpoint controls at runtime.
+
+- Specify a context-aware handler for disabled endpoints, also at runtime.
+
+- Create multiple proxies of an underlying object, each controlled differently.
+
+- Inject proxies into dependent code & control them from the outside.
+
+Easy use case:
+
+- You have a utility library with extensive logging.
+
+- You consume that library from an application that uses a custom logger like `winston`.
+
+- You want your utility library also to log to `winston`.
+
+- You normally want debug logging from the utility library disabled, _even when it is enabed in the outer application_, but you want to enable it selectively to help debug the outer app.
+
 <!-- TYPEDOC_EXCLUDE -->
 
 > [API Documentation](https://docs.karmanivero.us/controlled-proxy/) • [CHANGELOG](https://github.com/karmaniverous/controlled-proxy/tree/main/CHANGELOG.md)

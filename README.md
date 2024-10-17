@@ -20,13 +20,13 @@ npm install @karmaniverous/controlled-proxy
 
 The `controlledProxy` function creates a type-safe proxy of any `object`.
 
-The [`options`](https://docs.karmanivero.us/controlled-proxy/interfaces/ControlledProxyOptions.html) parameter is an object with the following properties:
+The [`options`](https://docs.karmanivero.us/controlled-proxy/interfaces/controlled_proxy.ControlledProxyOptions.html) parameter is an object with the following properties:
 
-| Property                       | Type                                                                                                     | Default           | Description                                                                                                                                                                                                                                               |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `defaultControls`              | `Record<PropertyKey, boolean>`                                                                           | `{}`              | A map of controlled property keys to boolean values. When this value is `true` or the property is uncontrolled, the property will behave normally. When this value is false, the property will execute the disabled member handler or return `undefined`. |
-| `defaultDisabledMemberHandler` | [`DisabledMemberHandler`](https://docs.karmanivero.us/controlled-proxy/types/DisabledMemberHandler.html) | `() => undefined` | A function that is called when a disabled controlled property is accessed.                                                                                                                                                                                |
-| `target`                       | `object`                                                                                                 | _required_        | The object to proxy.                                                                                                                                                                                                                                      |
+| Property                       | Type                                                                                                                      | Default           | Description                                                                                                                                                                                                                                               |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `defaultControls`              | `Record<PropertyKey, boolean>`                                                                                            | `{}`              | A map of controlled property keys to boolean values. When this value is `true` or the property is uncontrolled, the property will behave normally. When this value is false, the property will execute the disabled member handler or return `undefined`. |
+| `defaultDisabledMemberHandler` | [`DisabledMemberHandler`](https://docs.karmanivero.us/controlled-proxy/types/controlled_proxy.DisabledMemberHandler.html) | `() => undefined` | A function that is called when a disabled controlled property is accessed.                                                                                                                                                                                |
+| `target`                       | `object`                                                                                                                  | _required_        | The object to proxy.                                                                                                                                                                                                                                      |
 
 ### Example
 
@@ -49,10 +49,10 @@ controlledConsoleLogger.info('info log');
 
 The proxy object has two special properties, keyed with symbols that can be imported from the package:
 
-| Property                      | Type                                                                                                     | Description                                                                                                                                                                                                                                               |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `[controlProp]`               | `Record<PropertyKey, boolean>`                                                                           | A map of controlled property keys to boolean values. When this value is `true` or the property is uncontrolled, the property will behave normally. When this value is false, the property will execute the disabled member handler or return `undefined`. |
-| `[disabledMemberHandlerProp]` | [`DisabledMemberHandler`](https://docs.karmanivero.us/controlled-proxy/types/DisabledMemberHandler.html) | A function that is called when a disabled controlled property is accessed. Defaults to `() => undefined`.                                                                                                                                                 |
+| Property                      | Type                                                                                                                      | Description                                                                                                                                                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[controlProp]`               | `Record<PropertyKey, boolean>`                                                                                            | A map of controlled property keys to boolean values. When this value is `true` or the property is uncontrolled, the property will behave normally. When this value is false, the property will execute the disabled member handler or return `undefined`. |
+| `[disabledMemberHandlerProp]` | [`DisabledMemberHandler`](https://docs.karmanivero.us/controlled-proxy/types/controlled_proxy.DisabledMemberHandler.html) | A function that is called when a disabled controlled property is accessed. Defaults to `() => undefined`.                                                                                                                                                 |
 
 ### Example
 
@@ -93,12 +93,12 @@ controlledConsoleLogger.info('info log');
 
 ## Proxy Injection
 
-Here's the real power of the library: let's inject a controlled proxy into a class!
+Here's an example of the real power of the library: **let's inject a controlled proxy into a class!**
 
 ### Example
 
 ```ts
-import { controlledProxy, controlProp } from '@karmaniverous/controlled-proxy';';
+import { controlledProxy, controlProp } from '@karmaniverous/controlled-proxy';
 
 // Create a class that accepts a proxied logger as a constructor argument.
 class MyClass {

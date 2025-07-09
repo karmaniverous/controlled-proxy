@@ -6,8 +6,6 @@ import typescriptPlugin from '@rollup/plugin-typescript';
 import type { InputOptions, RollupOptions } from 'rollup';
 import dtsPlugin from 'rollup-plugin-dts';
 
-import pkg from './package.json' assert { type: 'json' };
-
 const outputPath = `dist`;
 
 const commonPlugins = [
@@ -19,14 +17,8 @@ const commonPlugins = [
 
 const commonAliases: Alias[] = [];
 
-type Package = Record<string, Record<string, string> | undefined>;
-
 const commonInputOptions: InputOptions = {
-  external: [
-    ...Object.keys((pkg as unknown as Package).dependencies ?? {}),
-    ...Object.keys((pkg as unknown as Package).peerDependencies ?? {}),
-    'tslib',
-  ],
+  external: ['tslib'],
   input: 'src/index.ts',
   plugins: [aliasPlugin({ entries: commonAliases }), ...commonPlugins],
 };
